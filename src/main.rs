@@ -2,6 +2,7 @@
 extern crate rocket;
 
 use rocket_db_pools::{Connection, Database};
+use uuid::Uuid;
 use std::fmt::Debug;
 
 use rocket::http::hyper::header;
@@ -9,6 +10,8 @@ use rocket::request::{Outcome, FromRequest, Request};
 use url::Url;
 
 use sinsuan::lib::storage::{self, CombinedVisitCount, SinSuanDB, VisitRecord};
+
+
 
 /** 心算请求数据结构 */
 #[derive(Debug)]
@@ -38,7 +41,7 @@ impl<'r> FromRequest<'r> for SinSuanDto {
       Outcome::Success(SinSuanDto {
         domain: url.host_str().map(|s| s.to_string()),
         path: url.path().to_string().parse().ok(),
-        user_id: if user_id.is_empty() { None }  else { Some(user_id) },
+        user_id: if user_id.is_empty() { Some(Uuid::now_v7().to_string()) }  else { Some(user_id) },
       })
     }
 }
@@ -49,8 +52,13 @@ async fn view(sin_suan_dto: SinSuanDto, mut db: Connection<SinSuanDB>) -> Option
   let path = sin_suan_dto.path.unwrap();
   let user_id = sin_suan_dto.user_id.unwrap();
 
-  // 首次访问可能需要创建表
-  let _ = storage::create_domain_tables(&mut db, domain.clone()).await;
+  // 如果域名或路径是空的，则返回空
+  if domain.is_empty() || path.is_empty() {
+    return None;
+  }
+
+  // 首次访问可能需要创建表、视图和物化视图触发器
+  let _ = storage::init_domain_storage(&mut db, domain.clone()).await;
 
   // 记录本次访问
   let _ = storage::record_visit(&mut db, domain.clone(), VisitRecord {
@@ -58,12 +66,15 @@ async fn view(sin_suan_dto: SinSuanDto, mut db: Connection<SinSuanDB>) -> Option
     user_id: user_id.clone(),
   }).await;
 
-  // 返回统计数据
-  Some(storage::query_count(&mut db, domain.as_str(), path).await.unwrap())
+  // 查询统计数据
+  let mut counts = storage::query_count(&mut db, domain.as_str(), path).await.unwrap();
+  counts.sin_suan_id = Some(user_id);
+
+  Some(counts)
 }
 
 #[launch]
-fn rocket() -> _ {
+async fn rocket() -> _ {
   rocket::build()
     .attach(SinSuanDB::init())
     .mount("/", routes![view])

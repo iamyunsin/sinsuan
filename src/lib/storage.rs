@@ -37,10 +37,11 @@ pub struct SiteVisitCount {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CombinedVisitCount {
-    pub pv: u32,
-    pub uv: u32,
-    pub site_pv: u32,
-    pub site_uv: u32,
+  pub sin_suan_id: Option<String>,
+  pub pv: u32,
+  pub uv: u32,
+  pub site_pv: u32,
+  pub site_uv: u32,
 }
 
 
@@ -137,7 +138,7 @@ pub async fn create_visit_count_materialized_view(db: &mut Connection<SinSuanDB>
   Ok(())
 }
 
-pub async fn create_domain_tables(db: &mut Connection<SinSuanDB>, domain: String) -> Result<(), sqlx::Error> {
+pub async fn init_domain_storage(db: &mut Connection<SinSuanDB>, domain: String) -> Result<(), sqlx::Error> {
   if is_domain_table_ready(db, domain.clone()).await? {
     return Ok(());
   }
@@ -188,6 +189,7 @@ pub async fn query_count(db: &mut Connection<SinSuanDB>, domain: &str, path: Str
   let site_count = site_count_task.unwrap();
 
   Ok(CombinedVisitCount {
+    sin_suan_id: None,
     pv: page_count.pv,
     uv: page_count.uv,
     site_pv: site_count.site_pv,
