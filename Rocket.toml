@@ -1,0 +1,24 @@
+## defaults for _all_ profiles
+[default]
+address = "0.0.0.0"
+limits = { form = "64 kB", json = "1 MiB" }
+
+## set only when compiled in release mode, i.e, `cargo build --release`
+[release]
+port = 9999
+ip_header = false
+
+[default.shutdown]
+ctrlc = true
+signals = ["term", "hup"]
+grace = 5
+mercy = 5
+
+[default.databases.sin_suan]
+url = "db/sqlx/db.sqlite"
+
+# only `url` is required. the rest have defaults and are thus optional
+min_connections = 1
+max_connections = 1024
+connect_timeout = 5
+idle_timeout = 120

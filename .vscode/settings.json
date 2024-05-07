@@ -1,0 +1,14 @@
+{
+    "cSpell.words": [
+        "AUTOINCREMENT",
+        "chrono",
+        "osqlx",
+        "REFERER",
+        "sinsuan",
+        "sqlx",
+        "Suan"
+    ],
+    "sqltools.useNodeRuntime": true,
+    "sqltools.connections": [],
+    "cmake.configureOnOpen": true
+}
