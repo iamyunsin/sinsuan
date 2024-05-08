@@ -1,7 +1,24 @@
+/**
+ * Copyright 2024-present iamyunsin
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 use lazy_static::lazy_static;
 
-use rocket::http::{ContentType, Status};
+use rocket::http::{ContentType, Cookie, SameSite, Status};
 use rocket::serde::{json, Deserialize, Serialize};
+use rocket::time::Duration;
 use rocket::{response, Request, Response};
 use rocket_db_pools::{sqlx, Database, Connection};
 use regex::Regex;
@@ -35,7 +52,7 @@ pub struct SiteVisitCount {
   pub site_uv: u32,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct CombinedVisitCount {
   pub sin_suan_id: Option<String>,
   pub pv: u32,
@@ -47,10 +64,20 @@ pub struct CombinedVisitCount {
 
 impl<'r, 'o> rocket::response::Responder<'r, 'static> for CombinedVisitCount {
   fn respond_to(self, req: &'r Request) -> response::Result<'static> {
-      Response::build_from(json::to_string(&self).unwrap().respond_to(req)?)
-          .status(Status::Ok)
-          .header(ContentType::JSON)
-          .ok()
+    // 用于跟踪的Cookie，用于标识用户唯一性，SAA策略之前的跨站跟踪解决方案
+    let mut track_cookie = Cookie::new("sinsuanid", self.clone().sin_suan_id.unwrap_or_else(|| "".to_string()));
+    track_cookie.set_domain(req.host().unwrap().domain().as_str());
+    track_cookie.set_path("/");
+    track_cookie.set_max_age(Duration::days(365_0)); // 10 年，因为中途访问会不断刷新该token，默认10年内没有再次访问，则失效
+    track_cookie.set_http_only(true);
+    // SameSite::None 必须设置 Secure 为 true
+    track_cookie.set_secure(true);
+    track_cookie.set_same_site(SameSite::None);
+    Response::build_from(json::to_string(&self).unwrap().respond_to(req)?)
+        .status(Status::Ok)
+        .header(ContentType::JSON)
+        .header(track_cookie)
+        .ok()
   }
 }
 

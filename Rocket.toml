@@ -15,7 +15,7 @@ grace = 5
 mercy = 5
 
 [default.databases.sin_suan]
-url = "db/sqlx/db.sqlite"
+url = "./db.sqlite"
 
 # only `url` is required. the rest have defaults and are thus optional
 min_connections = 1
