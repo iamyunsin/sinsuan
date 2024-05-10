@@ -16,9 +16,8 @@
 
 use lazy_static::lazy_static;
 
-use rocket::http::{ContentType, Cookie, SameSite, Status};
+use rocket::http::{ContentType, Status};
 use rocket::serde::{json, Deserialize, Serialize};
-use rocket::time::Duration;
 use rocket::{response, Request, Response};
 use rocket_db_pools::{sqlx, Database, Connection};
 use regex::Regex;
@@ -64,19 +63,9 @@ pub struct CombinedVisitCount {
 
 impl<'r, 'o> rocket::response::Responder<'r, 'static> for CombinedVisitCount {
   fn respond_to(self, req: &'r Request) -> response::Result<'static> {
-    // 用于跟踪的Cookie，用于标识用户唯一性，SAA策略之前的跨站跟踪解决方案
-    let mut track_cookie = Cookie::new("sinsuanid", self.clone().sin_suan_id.unwrap_or_else(|| "".to_string()));
-    track_cookie.set_domain(req.host().unwrap().domain().as_str());
-    track_cookie.set_path("/");
-    track_cookie.set_max_age(Duration::days(365_0)); // 10 年，因为中途访问会不断刷新该token，默认10年内没有再次访问，则失效
-    track_cookie.set_http_only(true);
-    // SameSite::None 必须设置 Secure 为 true
-    track_cookie.set_secure(true);
-    track_cookie.set_same_site(SameSite::None);
     Response::build_from(json::to_string(&self).unwrap().respond_to(req)?)
         .status(Status::Ok)
         .header(ContentType::JSON)
-        .header(track_cookie)
         .ok()
   }
 }
@@ -178,8 +167,9 @@ pub async fn init_domain_storage(db: &mut Connection<SinSuanDB>, domain: String)
 async fn query_site_count(db: &mut Connection<SinSuanDB>, domain: &str) -> Result<SiteVisitCount, sqlx::Error> {
   let site_visit_count = sqlx::query_as::<_, SiteVisitCount>(
   &format!(
-        "SELECT SUM(pv) as site_pv, SUM(uv) as site_uv FROM {}",
-        get_table_name("visit_count_view", domain)
+        // "SELECT SUM(pv) as site_pv, SUM(uv) as site_uv FROM {}",
+        "SELECT COUNT(*) as site_pv, COUNT(DISTINCT user_id) as site_uv FROM {}",
+        get_table_name("visit_record", domain)
       )
     )
     .fetch_one(db.as_mut())

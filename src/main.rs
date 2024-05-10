@@ -46,20 +46,7 @@ impl<'r> FromRequest<'r> for SinSuanDto {
 
     async fn from_request(request: &'r Request<'_>) -> Outcome<SinSuanDto, Self::Error> {
       let count_url =  request.headers().get_one("X-Sinsuan-Count-Url");
-
-      // 优先从cookie中获取用户唯一标识
-      let mut user_id = match request.cookies().get("sinsuanid") {
-        Some(uid) => uid.value().to_string(),
-        None => "".to_string(),
-      };
-
-      // 如果cookie中没有用户唯一标识，再从请求头中获取
-      if user_id.is_empty() {
-        user_id =  match request.headers().get_one("X-Sinsuan-Id") {
-          Some(uid) => uid.to_string(),
-          None => "".to_string(),
-        };
-      }
+      let user_id = request.headers().get_one("X-Sinsuan-Id").unwrap_or("").to_string();
 
       if count_url.is_none() {
         return Outcome::Success(SinSuanDto {
