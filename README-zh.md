@@ -70,8 +70,12 @@ bootstrap({
 
 如果觉得这个项目对您有帮助，您可以通过以下方式支持作者：
 
-1. 微信  
-![](./images/wechat.jpg) 
-
-2. 支付宝  
-![](./images/alipay.jpg)
+<p align="center">
+  <a href="./images/wechat.jpg">
+    <img src="./images/wechat.jpg" height="200" />
+  </a>
+  <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+  <a href="./images/alipay.jpg">
+    <img src="./images/alipay.jpg" height="200" />
+  </a>
+</p>

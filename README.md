@@ -69,8 +69,12 @@ bootstrap({
 
 If you find this project helpful, you can support the author in the following ways:
 
-1. WeChat Pay  
-![](./images/wechat.jpg)
-
-2. Alipay  
-![](./images/alipay.jpg)
+<p align="center">
+  <a href="./images/wechat.jpg">
+    <img src="./images/wechat.jpg" height="200" />
+  </a>
+  <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+  <a href="./images/alipay.jpg">
+    <img src="./images/alipay.jpg" height="200" />
+  </a>
+</p>
