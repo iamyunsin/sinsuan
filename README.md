@@ -1,3 +1,9 @@
+<p align="center">
+    English
+    |
+    <a href="./README-zh.md">简体中文</a>
+</p>
+
 # Sinsuan
 
 Sinsuan is an open source static site statistics tool that supports self-built services or online services.  

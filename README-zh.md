@@ -1,3 +1,9 @@
+<p align="center">
+    <a href="./README.md">English</a>
+    |
+    简体中文
+</p>
+
 # 心算(sinsuan)
 
 心算是一个开源的静态站点统计工具，支持自建服务，也可以使用在线服务。    
