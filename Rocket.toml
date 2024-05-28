@@ -2,11 +2,14 @@
 [default]
 address = "0.0.0.0"
 limits = { form = "64 kB", json = "1 MiB" }
+log_level = "normal"
+colors = 1
 
 ## set only when compiled in release mode, i.e, `cargo build --release`
 [release]
 port = 9999
 ip_header = false
+log_level = "normal"
 
 [default.shutdown]
 ctrlc = true
@@ -22,3 +25,10 @@ min_connections = 1
 max_connections = 1024
 connect_timeout = 5
 idle_timeout = 120
+
+[default.qq_map]
+base_url = "https://apis.map.qq.com"
+# 你的腾讯地图API密钥
+key = ""
+# 腾讯地图SK
+sk = ""
