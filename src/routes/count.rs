@@ -4,7 +4,7 @@ use uuid::Uuid;
 use std::{fmt::Debug, net::IpAddr};
 use rocket::request::{Outcome, FromRequest, Request};
 use url::Url;
-use crate::lib::storage::{self, CombinedVisitCount, SinSuanDB, VisitRecord};
+use crate::utils::storage::{self, CombinedVisitCount, SinSuanDB, VisitRecord};
 use crate::app_config::Config;
 
 /** 心算请求数据结构 */

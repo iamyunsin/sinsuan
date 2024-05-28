@@ -14,7 +14,7 @@ lazy_static = "1.4.0"
 regex = "1.5.4"
 serde = { version = "1.0.200", features = ["derive"] }
 log = "0.4.14"
-reqwest = {version = "0.12.4", features = ["json"]}
+reqwest = {version = "0.12.4", default-features = false, features = ["json", "rustls-tls"]}
 md-5 = "0.10.6"
 hex ="0.4.3"
 

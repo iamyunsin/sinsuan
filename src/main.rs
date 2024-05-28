@@ -19,12 +19,13 @@ extern crate rocket;
 
 use rocket::fairing::AdHoc;
 use rocket_db_pools::Database;
-mod lib;
+
+mod utils;
 mod routes;
 mod app_config;
 
-use lib::cors::CORS;
-use lib::storage::SinSuanDB;
+use utils::cors::CORS;
+use utils::storage::SinSuanDB;
 use routes as my_routes;
 
 
